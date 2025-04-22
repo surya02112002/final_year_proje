@@ -2,64 +2,271 @@
 {% block title %}Appointment Details | SKINTELLECT{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-  <div class="w-full max-w-xl bg-white shadow-md rounded-lg p-6">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Appointment Details</h1>
-    <div class="space-y-4">
-      <!-- Appointment Name -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Name</h2>
-        <p class="text-gray-600">{{ appointment.name }}</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 p-6">
+        <div class="flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-white">Appointment Details</h1>
+          <div>
+            {% if appointment.status == 0 %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <span class="h-2 w-2 rounded-full bg-yellow-400 mr-1 animate-pulse"></span>
+                Pending
+              </span>
+            {% elif appointment.status == 1 %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="h-2 w-2 rounded-full bg-green-400 mr-1"></span>
+                Confirmed
+              </span>
+            {% elif appointment.status == 2 %}
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <span class="h-2 w-2 rounded-full bg-red-400 mr-1"></span>
+                Rejected
+              </span>
+            {% endif %}
+          </div>
+        </div>
       </div>
-      <!-- User Email -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Email</h2>
-        <p class="text-gray-600">{{ appointment.email }}</p>
-      </div>
-      <!-- Date & Time -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Date &amp; Time</h2>
-        <p class="text-gray-600">{{ appointment.date }}</p>
-      </div>
-      <!-- Skin Type -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Skin Type</h2>
-        <p class="text-gray-600">{{ appointment.skin }}</p>
-      </div>
-      <!-- Age -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Age</h2>
-        <p class="text-gray-600">{{ appointment.age }}</p>
-      </div>
-      <!-- Address / Reason -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Address / Reason</h2>
-        <p class="text-gray-600">{{ appointment.address }}</p>
-      </div>
-      <!-- Appointment Status -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Status</h2>
-        <p class="text-gray-600">
+      
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Patient Information -->
+          <div class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Patient Information</h2>
+            
+            <div class="space-y-3">
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Name:</span>
+                </div>
+                <span class="text-gray-800 font-medium">{{ appointment.name }}</span>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Email:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.email }}</span>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Phone:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.phone }}</span>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Age:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.age }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Appointment Details -->
+          <div class="space-y-4">
+            <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Appointment Details</h2>
+            
+            <div class="space-y-3">
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Date & Time:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.date }}</span>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Skin Type:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.skin }}</span>
+              </div>
+              
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Address:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.address }}</span>
+              </div>
+              
+              {% if appointment.reason %}
+              <div class="flex items-start">
+                <div class="w-32 flex-shrink-0">
+                  <span class="text-gray-500 font-medium">Reason:</span>
+                </div>
+                <span class="text-gray-800">{{ appointment.reason }}</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        {% if session.username == appointment.username %}
+        <div class="mt-8 flex space-x-4 justify-end">
           {% if appointment.status == 0 %}
-            <span class="text-yellow-600 font-medium">Pending</span>
-          {% elif appointment.status == 1 %}
-            <span class="text-green-600 font-medium">Confirmed</span>
-          {% elif appointment.status == 2 %}
-            <span class="text-red-600 font-medium">Rejected</span>
+          <button id="cancelAppointment" data-id="{{ appointment.id }}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition flex items-center">
+            <i class="fas fa-times-circle mr-2"></i> Cancel Appointment
+          </button>
           {% endif %}
-        </p>
+          <a href="{{ url_for('userappoint') }}" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Appointments
+          </a>
+        </div>
+        {% endif %}
+        
+        {% if session.get('is_doctor') %}
+        <div class="mt-8 border-t pt-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">Doctor Actions</h2>
+          <div class="flex flex-wrap gap-4">
+            {% if appointment.status == 0 %}
+            <button data-id="{{ appointment.id }}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition flex items-center confirm-btn">
+              <i class="fas fa-check-circle mr-2"></i> Confirm Appointment
+            </button>
+            <button data-id="{{ appointment.id }}" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition flex items-center reject-btn">
+              <i class="fas fa-times-circle mr-2"></i> Reject Appointment
+            </button>
+            {% endif %}
+            <a href="{{ url_for('doctor_dashboard') }}" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition flex items-center">
+              <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+            </a>
+          </div>
+        </div>
+        {% endif %}
       </div>
-      <!-- Username of the Person who Booked -->
-      <div>
-        <h2 class="text-lg font-semibold text-gray-700">Username</h2>
-        <p class="text-gray-600">{{ appointment.username }}</p>
-      </div>
-    </div>
-    <div class="mt-6 text-center">
-      <a href="javascript:history.back()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-        <i class="fas fa-arrow-left mr-2"></i>Go Back
-      </a>
     </div>
   </div>
 </div>
+
+<!-- Confirmation Modal -->
+<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+    <div class="text-center mb-4">
+      <i class="fas fa-exclamation-triangle text-red-500 text-5xl mb-4"></i>
+      <h2 class="text-2xl font-bold text-gray-800">Cancel Appointment?</h2>
+      <p class="text-gray-600 mt-2">Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+    </div>
+    <div class="flex space-x-4 mt-6">
+      <button id="keepAppointment" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition">
+        Keep Appointment
+      </button>
+      <button id="confirmCancel" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
+        Cancel Appointment
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // For patient cancellation
+  const cancelBtn = document.getElementById('cancelAppointment');
+  const cancelModal = document.getElementById('cancelModal');
+  const keepBtn = document.getElementById('keepAppointment');
+  const confirmCancelBtn = document.getElementById('confirmCancel');
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      cancelModal.classList.remove('hidden');
+    });
+    
+    keepBtn.addEventListener('click', function() {
+      cancelModal.classList.add('hidden');
+    });
+    
+    confirmCancelBtn.addEventListener('click', function() {
+      const appointmentId = cancelBtn.getAttribute('data-id');
+      
+      fetch('/delete_appointment', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ id: appointmentId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        cancelModal.classList.add('hidden');
+        if (data.message) {
+          alert('Appointment cancelled successfully');
+          window.location.href = '/userappointment';
+        } else {
+          alert("Error: " + data.error);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("An error occurred. Please try again later.");
+        cancelModal.classList.add('hidden');
+      });
+    });
+    
+    // Close modal when clicking outside
+    cancelModal.addEventListener('click', function(e) {
+      if (e.target === cancelModal) {
+        cancelModal.classList.add('hidden');
+      }
+    });
+  }
+  
+  // For doctor actions
+  document.querySelectorAll('.confirm-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const appointmentId = this.getAttribute('data-id');
+      if (confirm("Are you sure you want to confirm this appointment?")) {
+        fetch('/update_appointment', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ 
+            appointment_id: appointmentId,
+            action: 'confirm'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Appointment confirmed successfully');
+            location.reload();
+          } else {
+            alert("Error: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("An error occurred. Please try again later.");
+        });
+      }
+    });
+  });
+  
+  document.querySelectorAll('.reject-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const appointmentId = this.getAttribute('data-id');
+      if (confirm("Are you sure you want to reject this appointment?")) {
+        fetch('/update_appointment', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ 
+            appointment_id: appointmentId,
+            action: 'reject'
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert('Appointment rejected successfully');
+            location.reload();
+          } else {
+            alert("Error: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("An error occurred. Please try again later.");
+        });
+      }
+    });
+  });
+});
+</script>
 {% endblock %}

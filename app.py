@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 import traceback
 import google.generativeai as genai
-from flask import Flask, render_template, request, redirect, session, url_for, jsonify, abort
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify, abort, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from roboflow import Roboflow
@@ -135,15 +135,18 @@ def create_tables():
         # Appointment table
         cursor.execute('''CREATE TABLE IF NOT EXISTS appointment (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT,
-            date TEXT,
-            skin TEXT,
-            phone TEXT,
-            age TEXT,
-            address TEXT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            date TEXT NOT NULL,
+            skin TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            age TEXT NOT NULL,
+            address TEXT NOT NULL,
+            reason TEXT,
             status INTEGER DEFAULT 0,
-            username TEXT
+            username TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (username) REFERENCES users(username)
         )''')
         # Skincare routines table
         cursor.execute('''CREATE TABLE IF NOT EXISTS skincare_routines (
@@ -195,13 +198,13 @@ def get_survey_response(user_id):
     with get_db_connection() as conn:
         return conn.execute("SELECT * FROM survey_responses WHERE user_id = ?", (user_id,)).fetchone()
 
-def insert_appointment_data(name, email, date, skin, phone, age, address, status, username):
+def insert_appointment_data(name, email, date, skin, phone, age, address, reason, status, username):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            '''INSERT INTO appointment (name, email, date, skin, phone, age, address, status, username)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)''',
-            (name, email, date, skin, phone, age, address, status, username)
+            '''INSERT INTO appointment (name, email, date, skin, phone, age, address, reason, status, username)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+            (name, email, date, skin, phone, age, address, reason, status, username)
         )
         conn.commit()
         return cursor.lastrowid
@@ -499,6 +502,7 @@ def chatbot():
             phone=survey_data.get("phone", ""),
             age=survey_data["age"],
             address=reason,
+            reason=reason,
             status=False,
             username=user["username"]
         )
@@ -738,10 +742,11 @@ def appointment():
     skin = request.form.get("skin")
     phone = request.form.get("phone")
     age = request.form.get("age")
-    address = request.form.get("reason")
+    address = request.form.get("address")
+    reason = request.form.get("reason") or ""
     username = session["username"]
-    status = False
-    appointment_id = insert_appointment_data(name, email, date, skin, phone, age, address, status, username)
+    status = 0
+    appointment_id = insert_appointment_data(name, email, date, skin, phone, age, address, reason, status, username)
     return jsonify({"message": "Appointment successfully booked", "appointmentId": appointment_id})
 
 @app.route("/userappointment", methods=["GET"])
@@ -878,6 +883,32 @@ def predict():
             return jsonify({"error": "An error occurred during analysis.", "details": str(e)}), 500
 
     return render_template("face_analysis.html", data={})
+
+@app.route("/consultation", methods=["GET", "POST"])
+def consultation():
+    if request.method == "POST":
+        if "username" not in session:
+            return redirect(url_for("login"))
+        name = request.form.get("name")
+        email = request.form.get("email")
+        date = request.form.get("date")
+        skin = request.form.get("skin")
+        phone = request.form.get("phone")
+        age = request.form.get("age")
+        address = request.form.get("address")
+        reason = request.form.get("reason") or ""
+        username = session["username"]
+        status = 0
+        
+        try:
+            appointment_id = insert_appointment_data(name, email, date, skin, phone, age, address, reason, status, username)
+            flash("Appointment booked successfully!", "success")
+            return redirect(url_for("userappoint"))
+        except Exception as e:
+            flash(f"Error booking appointment: {str(e)}", "error")
+            return render_template("consultation.html")
+            
+    return render_template("consultation.html")
 
 # =============================================================================
 # Main Entry Point

@@ -2,116 +2,327 @@
 {% block title %}Doctor Dashboard | SKINTELLECT{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50">
   <div class="flex flex-col md:flex-row">
     <!-- Sidebar -->
-    <aside class="bg-white shadow-lg md:w-64 w-full">
-      <div class="p-6">
-        <h1 class="text-2xl font-bold text-blue-600">
-          <i class="fas fa-stethoscope mr-2"></i> SKINTELLECT
+    <aside class="bg-white shadow-lg md:w-72 w-full">
+      <div class="p-6 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white">
+        <h1 class="text-2xl font-bold flex items-center">
+          <i class="fas fa-stethoscope mr-3"></i> SKINTELLECT
         </h1>
+        <p class="text-indigo-200 text-sm mt-1">Dermatology Dashboard</p>
+      </div>
+      <div class="p-6 border-b border-gray-100">
+        <div class="flex items-center space-x-4">
+          <div class="bg-indigo-100 p-3 rounded-full">
+            <i class="fas fa-user-md text-indigo-600"></i>
+          </div>
+          <div>
+            <p class="font-medium text-gray-800">{{ current_user.username }}</p>
+            <p class="text-sm text-gray-500">Dermatologist</p>
+          </div>
+        </div>
       </div>
       <nav class="p-4">
-        <ul class="space-y-4">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 ml-4">Main Menu</p>
+        <ul class="space-y-1">
           <li>
-            <a href="/doctor_dashboard" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+            <a href="/doctor_dashboard" class="flex items-center px-4 py-3 text-indigo-600 bg-indigo-50 rounded-lg font-medium">
               <i class="fas fa-calendar-check mr-3"></i> Appointments
             </a>
           </li>
           <li>
-            <a href="/profile" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+            <a href="/profile" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
               <i class="fas fa-user mr-3"></i> Profile
             </a>
           </li>
           <li>
-            <a href="/logout" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+            <a href="/logout" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
               <i class="fas fa-sign-out-alt mr-3"></i> Logout
             </a>
           </li>
         </ul>
       </nav>
     </aside>
+    
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
-      <header class="bg-white shadow-sm p-4 flex items-center justify-between">
-        <div class="text-xl font-semibold text-gray-800">Doctor Dashboard</div>
+      <header class="bg-white shadow-sm p-4 flex items-center justify-between sticky top-0 z-10">
+        <h2 class="text-xl font-semibold text-gray-800">Doctor Dashboard</h2>
         <div class="flex items-center space-x-4">
-          <img src="/static/assets/user.png" alt="Doctor Avatar" class="w-10 h-10 rounded-full">
-          <span class="text-gray-800 font-medium">{{ current_user.username }}</span>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+              <i class="fas fa-search text-gray-400"></i>
+            </span>
+            <input type="text" id="appointmentSearch" placeholder="Search appointments..." 
+              class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400">
+          </div>
         </div>
       </header>
+      
       <main class="p-6 flex-1 overflow-y-auto">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">All Appointments</h2>
-        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800">All Appointments</h2>
+            <p class="text-gray-500 mt-1">Manage your upcoming patient appointments</p>
+          </div>
+          <div class="mt-4 sm:mt-0 flex items-center space-x-3">
+            <div class="flex items-center space-x-2">
+              <span class="h-3 w-3 rounded-full bg-yellow-400"></span>
+              <span class="text-sm text-gray-600">Pending</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="h-3 w-3 rounded-full bg-green-400"></span>
+              <span class="text-sm text-gray-600">Confirmed</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="h-3 w-3 rounded-full bg-red-400"></span>
+              <span class="text-sm text-gray-600">Rejected</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Filter tabs -->
+        <div class="mb-6">
+          <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-6">
+              <button class="filter-btn whitespace-nowrap py-3 px-1 border-b-2 border-indigo-500 font-medium text-sm text-indigo-600" data-filter="all">
+                All Appointments
+              </button>
+              <button class="filter-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-filter="pending">
+                Pending
+              </button>
+              <button class="filter-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-filter="confirmed">
+                Confirmed
+              </button>
+              <button class="filter-btn whitespace-nowrap py-3 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-filter="rejected">
+                Rejected
+              </button>
+            </nav>
+          </div>
+        </div>
+        
+        <!-- Appointment cards -->
+        <div id="appointmentList" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {% for appointment in appointments %}
-          <div class="bg-white rounded-xl shadow p-4 hover:shadow-xl transition">
-            <div class="flex justify-between items-center mb-3">
+          <div class="appointment-card bg-white rounded-xl shadow-lg p-5 hover:shadow-xl transition" 
+               data-status="{% if appointment.status == 0 %}pending{% elif appointment.status == 1 %}confirmed{% else %}rejected{% endif %}"
+               data-search="{{ appointment.name.lower() }} {{ appointment.email.lower() }}">
+            <div class="flex justify-between items-start mb-4">
               <div>
                 <h3 class="text-lg font-semibold text-gray-800">{{ appointment.name }}</h3>
-                <p class="text-sm font-medium {% if appointment.status == 1 %}text-green-600{% elif appointment.status == 2 %}text-red-600{% else %}text-yellow-600{% endif %}">
-                  {% if appointment.status == 1 %}Confirmed{% elif appointment.status == 2 %}Rejected{% else %}Pending{% endif %}
+                <p class="text-sm {% if appointment.status == 0 %}text-yellow-600{% elif appointment.status == 1 %}text-green-600{% else %}text-red-600{% endif %}">
+                  {% if appointment.status == 0 %}
+                    <span class="flex items-center"><span class="h-2 w-2 rounded-full bg-yellow-400 mr-1 animate-pulse"></span>Pending</span>
+                  {% elif appointment.status == 1 %}
+                    <span class="flex items-center"><span class="h-2 w-2 rounded-full bg-green-400 mr-1"></span>Confirmed</span>
+                  {% else %}
+                    <span class="flex items-center"><span class="h-2 w-2 rounded-full bg-red-400 mr-1"></span>Rejected</span>
+                  {% endif %}
                 </p>
               </div>
-              <div class="text-sm text-gray-500">{{ appointment.date }}</div>
+              <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">{{ appointment.date }}</span>
             </div>
-            <div class="mb-3">
-              <p class="text-gray-700 text-sm"><i class="fas fa-user mr-2"></i>{{ appointment.name }} ({{ appointment.age }})</p>
-              <p class="text-gray-700 text-sm"><i class="fas fa-phone mr-2"></i>{{ appointment.phone }}</p>
-              <p class="text-gray-700 text-sm"><i class="fas fa-map-marker-alt mr-2"></i>{{ appointment.address }}</p>
+            
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-gray-700 text-sm">
+                <i class="fas fa-user text-indigo-500 w-5"></i>
+                <span>{{ appointment.name }} ({{ appointment.age }})</span>
+              </div>
+              <div class="flex items-center text-gray-700 text-sm">
+                <i class="fas fa-envelope text-indigo-500 w-5"></i>
+                <span>{{ appointment.email }}</span>
+              </div>
+              <div class="flex items-center text-gray-700 text-sm">
+                <i class="fas fa-phone text-indigo-500 w-5"></i>
+                <span>{{ appointment.phone }}</span>
+              </div>
+              <div class="flex items-center text-gray-700 text-sm">
+                <i class="fas fa-map-marker-alt text-indigo-500 w-5"></i>
+                <span>{{ appointment.address }}</span>
+              </div>
             </div>
-            <div class="flex space-x-3">
-              <a href="/appointment/{{ appointment.id }}" class="flex-1 bg-blue-500 text-white text-center px-4 py-2 rounded hover:bg-blue-600 transition">
+            
+            <div class="flex space-x-2">
+              <a href="/appointment/{{ appointment.id }}" class="flex-1 bg-indigo-500 text-white text-center px-3 py-2 rounded-lg hover:bg-indigo-600 transition flex items-center justify-center">
                 <i class="fas fa-eye mr-2"></i>View Details
               </a>
+              
               {% if appointment.status == 0 %}
-              <button data-id="{{ appointment.id }}" class="w-10 h-10 bg-green-100 text-green-600 rounded flex items-center justify-center hover:bg-green-200 transition confirm-btn" title="Confirm Appointment">
-                <i class="fas fa-check"></i>
-              </button>
-              <button data-id="{{ appointment.id }}" class="w-10 h-10 bg-red-100 text-red-600 rounded flex items-center justify-center hover:bg-red-200 transition reject-btn" title="Reject Appointment">
-                <i class="fas fa-times"></i>
-              </button>
+              <div class="flex space-x-1">
+                <button data-id="{{ appointment.id }}" class="bg-green-500 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-green-600 transition confirm-btn" title="Confirm Appointment">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button data-id="{{ appointment.id }}" class="bg-red-500 text-white w-10 h-10 rounded-lg flex items-center justify-center hover:bg-red-600 transition reject-btn" title="Reject Appointment">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
               {% endif %}
             </div>
           </div>
           {% endfor %}
+          
           {% if appointments|length == 0 %}
-          <div class="col-span-full text-center text-gray-500">No appointments found.</div>
+          <div id="noAppointments" class="col-span-full text-center py-8">
+            <div class="bg-gray-100 inline-block rounded-full p-6 mb-4">
+              <i class="fas fa-calendar-times text-4xl text-gray-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No appointments found</h3>
+            <p class="text-gray-500">There are currently no appointments scheduled.</p>
+          </div>
           {% endif %}
+          
+          <div id="noSearchResults" class="col-span-full text-center py-8 hidden">
+            <div class="bg-gray-100 inline-block rounded-full p-6 mb-4">
+              <i class="fas fa-search text-4xl text-gray-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">No matching appointments</h3>
+            <p class="text-gray-500">Try adjusting your search criteria.</p>
+          </div>
         </div>
       </main>
     </div>
   </div>
 </div>
 
-<!-- JavaScript to handle appointment confirm/reject actions -->
+<!-- Confirmation Modal -->
+<div id="actionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+    <div class="text-center mb-4" id="modalContent">
+      <!-- Content will be dynamically inserted here -->
+    </div>
+    <div class="flex space-x-4 mt-6">
+      <button id="cancelAction" class="flex-1 bg-gray-200 text-gray-800 py-2 rounded-lg hover:bg-gray-300 transition">
+        Cancel
+      </button>
+      <button id="confirmAction" class="flex-1 py-2 rounded-lg transition">
+        Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript for dashboard functionality -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Filter appointment cards
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const appointmentCards = document.querySelectorAll('.appointment-card');
+  const noAppointmentsMsg = document.getElementById('noAppointments');
+  const noSearchResultsMsg = document.getElementById('noSearchResults');
+  const searchInput = document.getElementById('appointmentSearch');
+  
+  // Modal elements
+  const actionModal = document.getElementById('actionModal');
+  const modalContent = document.getElementById('modalContent');
+  const cancelActionBtn = document.getElementById('cancelAction');
+  const confirmActionBtn = document.getElementById('confirmAction');
+  let currentAppointmentId = null;
+  let currentAction = null;
+  
+  // Filter functionality
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // Update active button styling
+      filterButtons.forEach(btn => {
+        btn.classList.remove('border-indigo-500', 'text-indigo-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+      });
+      button.classList.remove('border-transparent', 'text-gray-500');
+      button.classList.add('border-indigo-500', 'text-indigo-600');
+      
+      const filter = button.getAttribute('data-filter');
+      let visibleCount = 0;
+      
+      appointmentCards.forEach(card => {
+        const status = card.getAttribute('data-status');
+        const searchText = card.getAttribute('data-search');
+        const searchMatch = !searchInput.value || 
+                            searchText.includes(searchInput.value.toLowerCase());
+        
+        if ((filter === 'all' || status === filter) && searchMatch) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+      
+      // Show/hide no results messages
+      noAppointmentsMsg?.classList.add('hidden');
+      noSearchResultsMsg.classList.add('hidden');
+      
+      if (visibleCount === 0) {
+        if (searchInput.value) {
+          noSearchResultsMsg.classList.remove('hidden');
+        } else if (noAppointmentsMsg) {
+          noAppointmentsMsg.classList.remove('hidden');
+        }
+      }
+    });
+  });
+  
+  // Search functionality
+  searchInput.addEventListener('input', () => {
+    const searchValue = searchInput.value.toLowerCase();
+    const activeFilter = document.querySelector('.filter-btn.border-indigo-500').getAttribute('data-filter');
+    let visibleCount = 0;
+    
+    appointmentCards.forEach(card => {
+      const status = card.getAttribute('data-status');
+      const searchText = card.getAttribute('data-search');
+      
+      if ((activeFilter === 'all' || status === activeFilter) && 
+          (!searchValue || searchText.includes(searchValue))) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+    
+    // Show/hide no results messages
+    noAppointmentsMsg?.classList.add('hidden');
+    noSearchResultsMsg.classList.add('hidden');
+    
+    if (visibleCount === 0) {
+      noSearchResultsMsg.classList.remove('hidden');
+    }
+  });
+  
+  // Show modal with appropriate content
+  function showActionModal(appointmentId, action) {
+    currentAppointmentId = appointmentId;
+    currentAction = action;
+    
+    if (action === 'confirm') {
+      modalContent.innerHTML = `
+        <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800">Confirm Appointment?</h2>
+        <p class="text-gray-600 mt-2">Are you sure you want to confirm this appointment?</p>
+      `;
+      confirmActionBtn.classList.remove('bg-red-500');
+      confirmActionBtn.classList.add('bg-green-500');
+      confirmActionBtn.textContent = 'Confirm Appointment';
+    } else {
+      modalContent.innerHTML = `
+        <i class="fas fa-times-circle text-red-500 text-5xl mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800">Reject Appointment?</h2>
+        <p class="text-gray-600 mt-2">Are you sure you want to reject this appointment?</p>
+      `;
+      confirmActionBtn.classList.remove('bg-green-500');
+      confirmActionBtn.classList.add('bg-red-500');
+      confirmActionBtn.textContent = 'Reject Appointment';
+    }
+    
+    actionModal.classList.remove('hidden');
+  }
+  
   // Handle appointment confirmation
   document.querySelectorAll('.confirm-btn').forEach(function(button) {
     button.addEventListener('click', function() {
       const appointmentId = this.getAttribute('data-id');
-      fetch('/update_appointment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          appointment_id: appointmentId,
-          action: 'confirm'
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message) {
-          alert('Appointment confirmed.');
-          location.reload();
-        } else {
-          alert('Error: ' + data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      showActionModal(appointmentId, 'confirm');
     });
   });
 
@@ -119,28 +330,52 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.reject-btn').forEach(function(button) {
     button.addEventListener('click', function() {
       const appointmentId = this.getAttribute('data-id');
-      fetch('/update_appointment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          appointment_id: appointmentId,
-          action: 'reject'
-        })
+      showActionModal(appointmentId, 'reject');
+    });
+  });
+  
+  // Cancel modal action
+  cancelActionBtn.addEventListener('click', function() {
+    actionModal.classList.add('hidden');
+    currentAppointmentId = null;
+    currentAction = null;
+  });
+  
+  // Close modal when clicking outside
+  actionModal.addEventListener('click', function(e) {
+    if (e.target === actionModal) {
+      actionModal.classList.add('hidden');
+      currentAppointmentId = null;
+      currentAction = null;
+    }
+  });
+  
+  // Confirm action from modal
+  confirmActionBtn.addEventListener('click', function() {
+    if (!currentAppointmentId || !currentAction) return;
+    
+    fetch('/update_appointment', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ 
+        appointment_id: currentAppointmentId,
+        action: currentAction
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.message) {
-          alert('Appointment rejected.');
-          location.reload();
-        } else {
-          alert('Error: ' + data.error);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+    })
+    .then(response => response.json())
+    .then(data => {
+      actionModal.classList.add('hidden');
+      if (data.message) {
+        alert(`Appointment ${currentAction}ed successfully`);
+        location.reload();
+      } else {
+        alert("Error: " + data.error);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert("An error occurred. Please try again later.");
+      actionModal.classList.add('hidden');
     });
   });
 });

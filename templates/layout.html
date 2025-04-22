@@ -21,6 +21,49 @@
       background-attachment: fixed;
       padding-top: 80px;
     }
+    
+    .chat-message {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .typing-indicator {
+      display: flex;
+      padding: 4px;
+      align-items: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .dot {
+      height: 8px;
+      width: 8px;
+      margin: 0 2px;
+      background-color: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+      animation: blink 1.3s infinite ease-in-out both;
+    }
+    
+    .dot:nth-child(1) {
+      animation-delay: 0s;
+    }
+    
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    @keyframes blink {
+      0%, 100% { transform: scale(0.7); opacity: 0.5; }
+      50% { transform: scale(1); opacity: 1; }
+    }
   </style>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -50,6 +93,7 @@
           <a href="{{ url_for('bookappointment') }}" class="block px-4 py-2 hover:bg-gray-700">New Appointment</a>
           <a href="{{ url_for('predict') }}" class="block px-4 py-2 hover:bg-gray-700">Face Analysis</a>
           <a href="{{ url_for('userappoint') }}" class="block px-4 py-2 hover:bg-gray-700">My Appointments</a>
+          <a href="{{ url_for('consultation') }}" class="block px-4 py-2 hover:bg-gray-700">Consultation Form</a>
           <a href="{{ url_for('profile') }}" class="block px-4 py-2 hover:bg-gray-700">Profile</a>
         {% endif %}
         {% if session.get('username') %}
@@ -72,6 +116,7 @@
         <li><a href="{{ url_for('bookappointment') }}" class="block md:inline-block hover:text-gray-400">New Appointment</a></li>
         <li><a href="{{ url_for('predict') }}" class="block md:inline-block hover:text-gray-400">Face Analysis</a></li>
         <li><a href="{{ url_for('userappoint') }}" class="block md:inline-block hover:text-gray-400">My Appointments</a></li>
+        <li><a href="{{ url_for('consultation') }}" class="block md:inline-block hover:text-gray-400">Direct Consultation</a></li>
         <li><a href="{{ url_for('profile') }}" class="block md:inline-block hover:text-gray-400">Profile</a></li>
       {% endif %}
       {% if session.get('username') %}
@@ -92,6 +137,22 @@
   </nav>
 
   <div class="content p-4 flex-grow w-full">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="max-w-7xl mx-auto mb-4">
+          {% for category, message in messages %}
+            <div class="{% if category == 'error' %}bg-red-100 border border-red-200 text-red-700{% else %}bg-green-100 border border-green-200 text-green-700{% endif %} px-4 py-3 rounded relative" role="alert">
+              <span class="block sm:inline">{{ message }}</span>
+              <button class="absolute top-0 bottom-0 right-0 px-4 py-3 close-alert">
+                <svg class="fill-current h-6 w-6" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
     {% block content %}{% endblock %}
   </div>
 
@@ -117,20 +178,20 @@
     
     <div class="flex flex-col h-[calc(100%-136px)]">
       <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
-        <div class="chat-message bot-message animate-fade-in">
+        <div class="chat-message bot-message">
           <div class="bg-emerald-50 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
             <p class="text-sm text-emerald-900">Hello! I'm your AI skin health assistant. How can I help you today?</p>
-            <span class="text-xs text-emerald-500 mt-1 block">11:42 AM</span>
+            <span class="text-xs text-emerald-500 mt-1 block">Just now</span>
           </div>
         </div>
       </div>
       
       <div class="border-t border-emerald-100 p-4 bg-white">
         <div class="flex items-center space-x-2">
-          <div class="typing-indicator hidden items-center space-x-2 px-4">
-            <div class="dot animate-bounce"></div>
-            <div class="dot animate-bounce delay-100"></div>
-            <div class="dot animate-bounce delay-200"></div>
+          <div id="chat-typing-indicator" class="typing-indicator hidden">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
           </div>
           <input type="text" id="user-input"
                  class="flex-1 border-2 border-emerald-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-200 focus:ring-2 focus:ring-emerald-50 transition-all"
@@ -165,6 +226,7 @@
         <div class="flex flex-col space-y-2">
           <a href="{{ url_for('predict') }}" class="text-sm hover:text-emerald-300">Skin Analysis</a>
           <a href="{{ url_for('bookappointment') }}" class="text-sm hover:text-emerald-300">Consultation</a>
+          <a href="{{ url_for('consultation') }}" class="text-sm hover:text-emerald-300">Direct Booking</a>
           <a href="{{ url_for('profile') }}" class="text-sm hover:text-emerald-300">Profile</a>
           <a href="{{ url_for('userappoint') }}" class="text-sm hover:text-emerald-300">Appointments</a>
         </div>
@@ -192,84 +254,138 @@
 
   <script>
     // Toggle dropdown menu on mobile
-    document.getElementById("dropdown-btn").addEventListener("click", function() {
+    document.addEventListener("DOMContentLoaded", function() {
+      let dropdownBtn = document.getElementById("dropdown-btn");
       let menu = document.getElementById("dropdown-menu");
-      menu.classList.toggle("hidden");
-    });
+      
+      if (dropdownBtn) {
+        dropdownBtn.addEventListener("click", function() {
+          menu.classList.toggle("hidden");
+        });
+      }
 
-    // Chat widget functionality
-    document.addEventListener('DOMContentLoaded', () => {
+      // Chat widget functionality
       const chatContainer = document.getElementById('chat-container');
       const chatMessages = document.getElementById('chat-messages');
       const userInput = document.getElementById('user-input');
       const sendBtn = document.getElementById('send-btn');
       const closeBtn = document.getElementById('close-chat');
       const openChatBtn = document.getElementById('open-chat');
+      const typingIndicator = document.getElementById('chat-typing-indicator');
       
-      async function sendMessage() {
-        const message = userInput.value.trim();
-        if (!message) return;
-  
-        // Add user message to chat window
-        chatMessages.innerHTML += `
-          <div class="flex justify-end">
-            <div class="bg-emerald-100 p-3 rounded-lg max-w-xs">
-              <p class="text-sm">${message}</p>
-            </div>
-          </div>
-        `;
-        
-        // Clear the input and scroll to bottom
-        userInput.value = '';
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-  
-        try {
-          const response = await fetch('/chatbot', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userInput: message })
-          });
-          const data = await response.json();
-          // Add bot reply to chat window
-          chatMessages.innerHTML += `
-            <div class="flex justify-start">
-              <div class="bg-gray-100 p-3 rounded-lg max-w-xs">
-                <p class="text-sm">${data.botReply || "I'm sorry, I didn't understand that."}</p>
-              </div>
-            </div>
-          `;
+      function showTypingIndicator() {
+        if (typingIndicator) {
+          typingIndicator.classList.remove('hidden');
           chatMessages.scrollTop = chatMessages.scrollHeight;
-        } catch (error) {
-          chatMessages.innerHTML += `
-            <div class="flex justify-start">
-              <div class="bg-red-100 p-3 rounded-lg max-w-xs">
-                <p class="text-sm">Error: Could not send message</p>
-              </div>
-            </div>
-          `;
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-          console.error(error);
         }
       }
       
-      sendBtn.addEventListener('click', sendMessage);
-      
-      userInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          sendMessage();
+      function hideTypingIndicator() {
+        if (typingIndicator) {
+          typingIndicator.classList.add('hidden');
         }
-      });
+      }
       
-      closeBtn.addEventListener('click', () => {
-        chatContainer.classList.add('hidden');
-        openChatBtn.classList.remove('hidden');
-      });
+      if (openChatBtn) {
+        openChatBtn.addEventListener('click', () => {
+          chatContainer.classList.remove('hidden');
+        });
+      }
       
-      openChatBtn.addEventListener('click', () => {
-        chatContainer.classList.remove('hidden');
-        openChatBtn.classList.add('hidden');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          chatContainer.classList.add('hidden');
+        });
+      }
+      
+      // Close alert messages
+      document.querySelectorAll('.close-alert').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          this.parentElement.style.display = 'none';
+        });
       });
+
+      // Rest of your existing chat functionality
+      if (sendBtn && userInput && chatMessages) {
+        async function sendMessage() {
+          const message = userInput.value.trim();
+          if (!message) return;
+    
+          // Add user message to chat window
+          chatMessages.innerHTML += `
+            <div class="chat-message user-message flex justify-end">
+              <div class="bg-emerald-100 p-3 rounded-lg max-w-xs">
+                <p class="text-sm">${message}</p>
+              </div>
+            </div>
+          `;
+          
+          // Clear the input and scroll to bottom
+          userInput.value = '';
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+          // Show typing indicator with delay
+          setTimeout(() => {
+            showTypingIndicator();
+          }, 500);
+    
+          try {
+            // Add minimum delay for typing animation
+            const response = await Promise.all([
+              fetch('/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userInput: message })
+              }),
+              new Promise(resolve => setTimeout(resolve, 1500))
+            ]).then(results => results[0]);
+            
+            const data = await response.json();
+            
+            // Hide typing indicator
+            hideTypingIndicator();
+            
+            // Format time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            
+            // Add bot reply to chat window
+            chatMessages.innerHTML += `
+              <div class="chat-message bot-message flex justify-start">
+                <div class="bg-emerald-50 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
+                  <p class="text-sm text-emerald-900">${data.botReply || "I'm sorry, I didn't understand that."}</p>
+                  <span class="text-xs text-emerald-500 mt-1 block">${timeString}</span>
+                </div>
+              </div>
+            `;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          } catch (error) {
+            // Ensure typing shows for a minimum time
+            setTimeout(() => {
+              hideTypingIndicator();
+              
+              chatMessages.innerHTML += `
+                <div class="chat-message bot-message flex justify-start">
+                  <div class="bg-red-100 p-3 rounded-lg max-w-xs">
+                    <p class="text-sm">Error: Could not send message</p>
+                  </div>
+                </div>
+              `;
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+              console.error(error);
+            }, 1000);
+          }
+        }
+        
+        sendBtn.addEventListener('click', sendMessage);
+        
+        userInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+      }
     });
   </script>
 </body>
