@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+{% block title %}Skin Health Survey | SKINTELLECT{% endblock %}
+{% block content %}
+
+<div class="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Survey Header -->
+        <div class="bg-blue-600 text-white p-6">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold">Skin Health Assessment</h1>
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-clipboard-list text-xl"></i>
+                    <span class="text-sm">Page</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Survey Content -->
+        <form action="/survey" method="POST" class="p-8 space-y-6">
+            <!-- Hidden input fields for name -->
+            <input type="hidden" id="name" name="name" value="{{ name }}">
+
+            <!-- Age -->
+            <label for="age" class="text-lg font-semibold">1. What Is Your Age?</label>
+            <select id="age" name="age" required class="w-full p-2 border rounded-lg">
+                <option value="<12">&lt;12</option>
+                <option value="12-18">12-18</option>
+                <option value="18-25">18-25</option>
+                <option value="26-45">26-45</option>
+                <option value="46-55">46-55</option>
+                <option value="55+">55+</option>
+            </select>
+
+            <!-- Gender -->
+            <label for="gender" class="text-lg font-semibold">2. What is your Gender?</label>
+            <select id="gender" name="gender" required class="w-full p-2 border rounded-lg">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+
+            <!-- Concerns -->
+            <label for="concerns" class="text-lg font-semibold">3. Please Select Your Concerns:</label>
+            <select id="concerns" name="concerns" multiple required class="w-full p-2 border rounded-lg">
+                <option value="Acne">Acne</option>
+                <option value="Dry skin">Dry skin</option>
+                <option value="Oily skin">Oily skin</option>
+                <option value="Blackheads or whiteheads">Blackheads or whiteheads</option>
+                <option value="Papules">Papules</option>
+                <option value="Skin allergies or irritations">Skin allergies or irritations</option>
+            </select>
+
+            <!-- Acne Frequency -->
+            <label for="acne_frequency" class="text-lg font-semibold">4. How Often Does Your Acne Appear?</label>
+            <select id="acne_frequency" name="acne_frequency" required class="w-full p-2 border rounded-lg">
+                <option value="Never">Never</option>
+                <option value="Once in a month">Once in a month</option>
+                <option value="Once in 3 months">Once in 3 months</option>
+                <option value="Always Present">Always Present</option>
+            </select>
+
+            <!-- Comedones Count -->
+            <label for="comedones_count" class="text-lg font-semibold">5. How Many Comedones (Whiteheads, Blackheads) Do You Have?</label>
+            <select id="comedones_count" name="comedones_count" required class="w-full p-2 border rounded-lg">
+                <option value="None">None</option>
+                <option value="Less than 5">Less than 5</option>
+                <option value="About 5-10">About 5-10</option>
+                <option value="More than 10">More than 10</option>
+            </select>
+
+            <!-- First Concern -->
+            <label for="first_concern" class="text-lg font-semibold">6. Please Select The Concern You'd Like To Address First:</label>
+            <select id="first_concern" name="first_concern" required class="w-full p-2 border rounded-lg">
+                <option value="Acne">Acne</option>
+                <option value="Dry skin">Dry skin</option>
+                <option value="Oily skin">Oily skin</option>
+                <option value="Blackheads or whiteheads">Blackheads or whiteheads</option>
+                <option value="Papules">Papules</option>
+            </select>
+
+            <!-- Cosmetic Usage -->
+            <label for="cosmetics_usage" class="text-lg font-semibold">7. How Often Do You Use Cosmetics?</label>
+            <select id="cosmetics_usage" name="cosmetics_usage" required class="w-full p-2 border rounded-lg">
+                <option value="Everyday">Everyday</option>
+                <option value="Occasionally">Occasionally</option>
+                <option value="Rarely Or Never">Rarely Or Never</option>
+            </select>
+
+            <!-- Skin Reaction -->
+            <label for="skin_reaction" class="text-lg font-semibold">8. Does Your Skin React to Skincare Products?</label>
+            <select id="skin_reaction" name="skin_reaction" required class="w-full p-2 border rounded-lg">
+                <option value="Rarely/Never">Rarely/Never</option>
+                <option value="Often">Often</option>
+            </select>
+
+            <!-- Skin Type -->
+            <label for="skin_type" class="text-lg font-semibold">9. Which Best Describes Your Skin Type?</label>
+            <select id="skin_type" name="skin_type_details" required class="w-full p-2 border rounded-lg">
+                <option value="Combination Skin">Part Oily And Part Normal (Combination Skin)</option>
+                <option value="Normal">Neither Very Oily Nor Very Dry</option>
+                <option value="Oily T-Zone">Oily Forehead And Nose Bridge (T-Zone)</option>
+                <option value="None Of The Above">None Of The Above</option>
+            </select>
+
+            <!-- Medications -->
+            <label for="medications" class="text-lg font-semibold">10. Are You Taking Any Medications?</label>
+            <select id="medications" name="medications" required class="w-full p-2 border rounded-lg">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+
+            <!-- Skincare Routine -->
+            <label for="skincare_routine" class="text-lg font-semibold">11. Describe Your Current Skincare Routine:</label>
+            <textarea id="skincare_routine" name="skincare_routine" rows="4" required class="w-full p-2 border rounded-lg"></textarea>
+
+            <!-- Stress Level -->
+            <label for="stress_level" class="text-lg font-semibold">12. How Would You Describe Your Stress Level? (0-5)</label>
+            <input type="number" id="stress_level" name="stress_level" min="0" max="5" required class="w-full p-2 border rounded-lg">
+
+            <!-- Submit Button -->
+            <button type="submit" class="text-white font-semibold text-lg bg-[#4895ef] w-full p-2 rounded-lg hover:bg-[#3779d7] transition">
+                Submit
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

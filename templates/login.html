@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block title %}Login | SKINSENSE{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen px-4">
+    <div class="flex flex-col md:flex-row bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl p-8 w-full max-w-3xl transform transition-all hover:scale-[1.005]">
+        <!-- Welcome Section -->
+        <div class="md:w-1/2 flex flex-col items-center justify-center p-6 bg-gradient-to-r from-purple-800 via-blue-800 to-purple-800 text-white rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none text-center space-y-4">
+            <i class="fas fa-sign-in-alt text-5xl text-emerald-400"></i>
+            <h1 class="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-300">
+                Welcome Back
+            </h1>
+            <p class="text-blue-100">Continue your skincare journey</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="md:w-1/2 p-8 w-full flex flex-col">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Account Login</h2>
+            <p class="text-center text-sm text-gray-600 mb-6">
+                New to SKINSENSE?
+                <a href="{{ url_for('register') }}" class="text-emerald-500 font-semibold hover:underline">Create account</a>
+            </p>
+
+            {% if error %}
+            <div class="bg-red-200 text-red-800 p-2 rounded mb-4">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('login') }}" method="post" class="flex flex-col gap-4">
+                <div class="relative">
+                    <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="username" placeholder="Username"
+                        class="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-400">
+                </div>
+
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="password" name="password" placeholder="Password"
+                        class="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-400">
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-gray-600">
+                        <input type="checkbox" class="rounded border-gray-300 text-emerald-400 focus:ring-emerald-400">
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit"
+                    class="bg-gradient-to-r from-emerald-400 to-blue-300 text-white font-semibold py-3 rounded-lg hover:from-emerald-300 hover:to-blue-200 transition-all shadow-md mt-4">
+                    Sign In
+                </button>
+                
+                <!-- Doctor-specific note -->
+                <p class="mt-2 text-center text-xs text-gray-500 italic">
+                    If you're a doctor, sign in with your doctor account credentials to access your dashboard.
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

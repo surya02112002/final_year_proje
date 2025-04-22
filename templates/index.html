@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Skintellect - AI-Powered Skin Analysis{% endblock %}
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="relative min-h-screen flex flex-col justify-center items-center text-center bg-gradient-to-br from-indigo-900 via-blue-800 to-purple-900 overflow-hidden">
+  <!-- Background Image -->
+  <div class="absolute inset-0">
+    <img src="/static/assets/1.png" alt="Skincare AI Analysis" class="w-full h-full object-cover opacity-50">
+  </div>
+  
+  <!-- Hero Content -->
+  <div class="relative z-10 max-w-4xl px-6">
+    <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-tight animate-fade-in">
+      AI-Powered Skincare Analysis
+    </h1>
+    <p class="text-lg md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto animate-fade-in">
+      Scan your face and let our AI recommend the best skincare products tailored to your skin type.
+    </p>
+    <a href="{{ url_for('predict') }}" 
+       class="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-white font-semibold py-3 px-12 rounded-full shadow-xl transition transform hover:scale-110 animate-bounce">
+      Analyse Face
+    </a>
+  </div>
+
+  <!-- Floating Elements -->
+  <div class="absolute top-10 left-10 w-24 h-24 bg-emerald-400/20 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-20 right-16 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
+</section>
+
+<!-- WHY CHOOSE US SECTION -->
+<section class="bg-gradient-to-r from-blue-900 to-purple-900 py-20 px-6">
+  <div class="container mx-auto text-center">
+    <h2 class="text-4xl md:text-5xl font-bold text-white mb-10">
+      Why Choose Skintellect?
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+      <!-- Benefit 1 -->
+      <div class="bg-white/10 backdrop-blur-lg shadow-lg rounded-lg p-6 flex flex-col items-center text-center hover:shadow-xl transition">
+        <h3 class="text-xl font-semibold text-white">AI-Powered Precision</h3>
+        <p class="text-gray-200 mt-2">
+          Advanced AI detects skin conditions with industry-leading accuracy.
+        </p>
+      </div>
+      <!-- Benefit 2 -->
+      <div class="bg-white/10 backdrop-blur-lg shadow-lg rounded-lg p-6 flex flex-col items-center text-center hover:shadow-xl transition">
+        <h3 class="text-xl font-semibold text-white">Personalized Routine</h3>
+        <p class="text-gray-200 mt-2">
+          Get product recommendations tailored to your unique skin type.
+        </p>
+      </div>
+      <!-- Benefit 3 -->
+      <div class="bg-white/10 backdrop-blur-lg shadow-lg rounded-lg p-6 flex flex-col items-center text-center hover:shadow-xl transition">
+        <h3 class="text-xl font-semibold text-white">Fast & Easy</h3>
+        <p class="text-gray-200 mt-2">
+          Upload your image, analyze your skin, and get results in seconds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

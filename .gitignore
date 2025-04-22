@@ -1,0 +1,4 @@
+app.db
+output.log
+.env
+.venv

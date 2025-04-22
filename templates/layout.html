@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}My Flask App{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      overflow-x: hidden;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("{{ url_for('static', filename='assets/bg5.webp') }}");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      padding-top: 80px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+</head>
+<body>
+
+  <!-- Navbar with consistent background -->
+  <nav class="fixed top-0 left-0 shadow-lg p-4 flex justify-between items-center w-full z-50 bg-gradient-to-r from-purple-800 via-blue-800 to-purple-800 text-white">
+    <div class="flex items-center space-x-3">
+      <i class="fa-solid fa-leaf text-3xl text-emerald-400 animate-pulse"></i>
+      <a href="{{ url_for('index') }}" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-300 hover:opacity-80 transition duration-300">
+        SKINSENSE
+      </a>
+    </div>
+
+    <!-- Dropdown Menu for Mobile -->
+    <div class="relative md:hidden">
+      <button id="dropdown-btn" class="text-2xl">
+        <i class="bi bi-list"></i>
+      </button>
+      <div id="dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 shadow-lg rounded-lg border border-gray-700 text-white">
+        {% if session.get('is_doctor') %}
+          <!-- For doctor users, show only the Dashboard link -->
+          <a href="{{ url_for('doctor_dashboard') }}" class="block px-4 py-2 hover:bg-gray-700">Dashboard</a>
+        {% else %}
+          <!-- For regular users, show the standard menu -->
+          <a href="{{ url_for('bookappointment') }}" class="block px-4 py-2 hover:bg-gray-700">New Appointment</a>
+          <a href="{{ url_for('predict') }}" class="block px-4 py-2 hover:bg-gray-700">Face Analysis</a>
+          <a href="{{ url_for('userappoint') }}" class="block px-4 py-2 hover:bg-gray-700">My Appointments</a>
+          <a href="{{ url_for('profile') }}" class="block px-4 py-2 hover:bg-gray-700">Profile</a>
+        {% endif %}
+        {% if session.get('username') %}
+          <a href="{{ url_for('logout') }}" class="block px-4 py-2 mt-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="block px-4 py-2 mt-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300">Login</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Menu for Larger Screens -->
+    <ul class="hidden md:flex flex-wrap justify-end gap-4 md:gap-8 text-center md:flex-nowrap w-full md:w-auto">
+      {% if session.get('is_doctor') %}
+        <li>
+          <a href="{{ url_for('doctor_dashboard') }}" class="block md:inline-block hover:text-gray-400">
+            Dashboard
+          </a>
+        </li>
+      {% else %}
+        <li><a href="{{ url_for('bookappointment') }}" class="block md:inline-block hover:text-gray-400">New Appointment</a></li>
+        <li><a href="{{ url_for('predict') }}" class="block md:inline-block hover:text-gray-400">Face Analysis</a></li>
+        <li><a href="{{ url_for('userappoint') }}" class="block md:inline-block hover:text-gray-400">My Appointments</a></li>
+        <li><a href="{{ url_for('profile') }}" class="block md:inline-block hover:text-gray-400">Profile</a></li>
+      {% endif %}
+      {% if session.get('username') %}
+        <li>
+          <a href="{{ url_for('logout') }}" class="block md:inline-block bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition duration-300">
+            Logout
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <a href="{{ url_for('login') }}" class="block md:inline-block bg-green-500 px-3 py-1 rounded hover:bg-green-600 transition duration-300">
+            Login
+          </a>
+        </li>
+        <li><a href="{{ url_for('register') }}" class="block md:inline-block hover:text-gray-400">Register</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <div class="content p-4 flex-grow w-full">
+    {% block content %}{% endblock %}
+  </div>
+
+  <!-- Chatbot Interface (initially hidden) -->
+  <div id="chat-container" class="hidden fixed bottom-0 right-0 md:bottom-4 md:right-4 w-full md:w-96 h-[70vh] md:h-[60vh] bg-white shadow-xl rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out z-50">
+    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-4 rounded-t-2xl md:rounded-t-lg flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="relative">
+          <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <i class="fas fa-robot text-emerald-500"></i>
+          </div>
+          <span class="absolute bottom-0 right-0 w-2 h-2 bg-green-400 rounded-full"></span>
+        </div>
+        <div>
+          <h3 class="font-semibold">Skin Health Assistant</h3>
+          <p class="text-xs opacity-75">AI-powered dermatology support</p>
+        </div>
+      </div>
+      <button id="close-chat" class="p-1 hover:bg-white/10 rounded-full transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="flex flex-col h-[calc(100%-136px)]">
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div class="chat-message bot-message animate-fade-in">
+          <div class="bg-emerald-50 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[85%]">
+            <p class="text-sm text-emerald-900">Hello! I'm your AI skin health assistant. How can I help you today?</p>
+            <span class="text-xs text-emerald-500 mt-1 block">11:42 AM</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t border-emerald-100 p-4 bg-white">
+        <div class="flex items-center space-x-2">
+          <div class="typing-indicator hidden items-center space-x-2 px-4">
+            <div class="dot animate-bounce"></div>
+            <div class="dot animate-bounce delay-100"></div>
+            <div class="dot animate-bounce delay-200"></div>
+          </div>
+          <input type="text" id="user-input"
+                 class="flex-1 border-2 border-emerald-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-200 focus:ring-2 focus:ring-emerald-50 transition-all"
+                 placeholder="Type your skin concern...">
+          <button id="send-btn" class="bg-emerald-500 text-white p-3 rounded-2xl hover:bg-emerald-600 transition-colors shadow-md">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 px-2">Have a Nice Day!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button for Chat -->
+  <button id="open-chat" class="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-14 h-14 md:w-16 md:h-16 rounded-full bg-emerald-500 text-white shadow-lg z-50 hover:bg-emerald-600 transition-all hover:scale-105">
+    <i class="fas fa-comment-dots text-xl"></i>
+  </button>
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-r from-purple-800 via-blue-800 to-purple-800 text-white py-8 mt-12 border-t border-blue-400/20">
+    <div class="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center md:text-left">
+        <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-300 mb-2">SKINSENSE</h2>
+        <p class="text-sm text-blue-100">AI-Driven Dermatology Solutions</p>
+        <div class="mt-4 space-y-1">
+          <p class="text-xs text-blue-200"><i class="fas fa-envelope mr-2"></i>suryakantpandey2002@gmail.com</p>
+          <p class="text-xs text-blue-200"><i class="fas fa-phone mr-2"></i>+916202577291</p>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <h3 class="font-semibold text-blue-200 mb-2">Quick Links</h3>
+        <div class="flex flex-col space-y-2">
+          <a href="{{ url_for('predict') }}" class="text-sm hover:text-emerald-300">Skin Analysis</a>
+          <a href="{{ url_for('bookappointment') }}" class="text-sm hover:text-emerald-300">Consultation</a>
+          <a href="{{ url_for('profile') }}" class="text-sm hover:text-emerald-300">Profile</a>
+          <a href="{{ url_for('userappoint') }}" class="text-sm hover:text-emerald-300">Appointments</a>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <h3 class="font-semibold text-blue-200 mb-2">Connect With Us</h3>
+        <div class="flex space-x-4 text-xl">
+          <a href="https://www.instagram.com/surya.__.02/" class="hover:text-emerald-300 transition-colors"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/in/suryakantpandey-930b34215/" class="hover:text-emerald-300 transition-colors"><i class="fab fa-linkedin"></i></a>
+          <a href="https://github.com/surya02112002" class="hover:text-emerald-300 transition-colors"><i class="fab fa-github"></i></a>
+        </div>
+        <div class="mt-4">
+          <div class="flex mt-2">
+            <input type="email" placeholder="Enter your email" class="p-1 text-sm rounded-l bg-blue-900/50 border border-blue-400/30">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center text-gray-500 text-sm mt-4">
+      <div class="text-center text-blue-300 text-sm mt-6">
+        &copy; 2025 SKINSENSE. All rights reserved. | <a href="#" class="hover:text-emerald-300">Privacy Policy</a> | <a href="#" class="hover:text-emerald-300">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Toggle dropdown menu on mobile
+    document.getElementById("dropdown-btn").addEventListener("click", function() {
+      let menu = document.getElementById("dropdown-menu");
+      menu.classList.toggle("hidden");
+    });
+
+    // Chat widget functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const chatContainer = document.getElementById('chat-container');
+      const chatMessages = document.getElementById('chat-messages');
+      const userInput = document.getElementById('user-input');
+      const sendBtn = document.getElementById('send-btn');
+      const closeBtn = document.getElementById('close-chat');
+      const openChatBtn = document.getElementById('open-chat');
+      
+      async function sendMessage() {
+        const message = userInput.value.trim();
+        if (!message) return;
+  
+        // Add user message to chat window
+        chatMessages.innerHTML += `
+          <div class="flex justify-end">
+            <div class="bg-emerald-100 p-3 rounded-lg max-w-xs">
+              <p class="text-sm">${message}</p>
+            </div>
+          </div>
+        `;
+        
+        // Clear the input and scroll to bottom
+        userInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+  
+        try {
+          const response = await fetch('/chatbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userInput: message })
+          });
+          const data = await response.json();
+          // Add bot reply to chat window
+          chatMessages.innerHTML += `
+            <div class="flex justify-start">
+              <div class="bg-gray-100 p-3 rounded-lg max-w-xs">
+                <p class="text-sm">${data.botReply || "I'm sorry, I didn't understand that."}</p>
+              </div>
+            </div>
+          `;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (error) {
+          chatMessages.innerHTML += `
+            <div class="flex justify-start">
+              <div class="bg-red-100 p-3 rounded-lg max-w-xs">
+                <p class="text-sm">Error: Could not send message</p>
+              </div>
+            </div>
+          `;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          console.error(error);
+        }
+      }
+      
+      sendBtn.addEventListener('click', sendMessage);
+      
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+      
+      closeBtn.addEventListener('click', () => {
+        chatContainer.classList.add('hidden');
+        openChatBtn.classList.remove('hidden');
+      });
+      
+      openChatBtn.addEventListener('click', () => {
+        chatContainer.classList.remove('hidden');
+        openChatBtn.classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

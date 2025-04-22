@@ -1,0 +1,148 @@
+{% extends "layout.html" %}
+{% block title %}Doctor Dashboard | SKINTELLECT{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+  <div class="flex flex-col md:flex-row">
+    <!-- Sidebar -->
+    <aside class="bg-white shadow-lg md:w-64 w-full">
+      <div class="p-6">
+        <h1 class="text-2xl font-bold text-blue-600">
+          <i class="fas fa-stethoscope mr-2"></i> SKINTELLECT
+        </h1>
+      </div>
+      <nav class="p-4">
+        <ul class="space-y-4">
+          <li>
+            <a href="/doctor_dashboard" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+              <i class="fas fa-calendar-check mr-3"></i> Appointments
+            </a>
+          </li>
+          <li>
+            <a href="/profile" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+              <i class="fas fa-user mr-3"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a href="/logout" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-md transition">
+              <i class="fas fa-sign-out-alt mr-3"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <header class="bg-white shadow-sm p-4 flex items-center justify-between">
+        <div class="text-xl font-semibold text-gray-800">Doctor Dashboard</div>
+        <div class="flex items-center space-x-4">
+          <img src="/static/assets/user.png" alt="Doctor Avatar" class="w-10 h-10 rounded-full">
+          <span class="text-gray-800 font-medium">{{ current_user.username }}</span>
+        </div>
+      </header>
+      <main class="p-6 flex-1 overflow-y-auto">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">All Appointments</h2>
+        <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {% for appointment in appointments %}
+          <div class="bg-white rounded-xl shadow p-4 hover:shadow-xl transition">
+            <div class="flex justify-between items-center mb-3">
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800">{{ appointment.name }}</h3>
+                <p class="text-sm font-medium {% if appointment.status == 1 %}text-green-600{% elif appointment.status == 2 %}text-red-600{% else %}text-yellow-600{% endif %}">
+                  {% if appointment.status == 1 %}Confirmed{% elif appointment.status == 2 %}Rejected{% else %}Pending{% endif %}
+                </p>
+              </div>
+              <div class="text-sm text-gray-500">{{ appointment.date }}</div>
+            </div>
+            <div class="mb-3">
+              <p class="text-gray-700 text-sm"><i class="fas fa-user mr-2"></i>{{ appointment.name }} ({{ appointment.age }})</p>
+              <p class="text-gray-700 text-sm"><i class="fas fa-phone mr-2"></i>{{ appointment.phone }}</p>
+              <p class="text-gray-700 text-sm"><i class="fas fa-map-marker-alt mr-2"></i>{{ appointment.address }}</p>
+            </div>
+            <div class="flex space-x-3">
+              <a href="/appointment/{{ appointment.id }}" class="flex-1 bg-blue-500 text-white text-center px-4 py-2 rounded hover:bg-blue-600 transition">
+                <i class="fas fa-eye mr-2"></i>View Details
+              </a>
+              {% if appointment.status == 0 %}
+              <button data-id="{{ appointment.id }}" class="w-10 h-10 bg-green-100 text-green-600 rounded flex items-center justify-center hover:bg-green-200 transition confirm-btn" title="Confirm Appointment">
+                <i class="fas fa-check"></i>
+              </button>
+              <button data-id="{{ appointment.id }}" class="w-10 h-10 bg-red-100 text-red-600 rounded flex items-center justify-center hover:bg-red-200 transition reject-btn" title="Reject Appointment">
+                <i class="fas fa-times"></i>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          {% if appointments|length == 0 %}
+          <div class="col-span-full text-center text-gray-500">No appointments found.</div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript to handle appointment confirm/reject actions -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle appointment confirmation
+  document.querySelectorAll('.confirm-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const appointmentId = this.getAttribute('data-id');
+      fetch('/update_appointment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          appointment_id: appointmentId,
+          action: 'confirm'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert('Appointment confirmed.');
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  });
+
+  // Handle appointment rejection
+  document.querySelectorAll('.reject-btn').forEach(function(button) {
+    button.addEventListener('click', function() {
+      const appointmentId = this.getAttribute('data-id');
+      fetch('/update_appointment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          appointment_id: appointmentId,
+          action: 'reject'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert('Appointment rejected.');
+          location.reload();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  });
+});
+</script>
+{% endblock %}
